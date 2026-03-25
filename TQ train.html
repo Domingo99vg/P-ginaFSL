@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrenador TQ</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body {
+  background-color: #f8f9fa;
+  margin: 0;
+  font-family: system-ui;
+}
+
+/* FONDO */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url('https://th.bing.com/th/id/OIP.6z9GMY_U839jEdzDWzpfuAHaEK?w=298&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3');
+  background-size: cover;
+  opacity: 0.3;
+  z-index: -1;
+}
+
+/* CENTRAR */
+.container-center {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+/* CÍRCULO */
+.circle-timer {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: conic-gradient(#dc3545 var(--percent, 0%), #e9ecef 0%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* TEXTO */
+.fade-text {
+  font-size: 4rem;
+  font-weight: bold;
+}
+
+/* BOTÓN */
+.btn-lg {
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  border-radius: 50px;
+}
+
+.hidden {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- INICIO -->
+<div class="container-center" id="startScreen">
+  <button id="startBtn" class="btn btn-success btn-lg">EMPEZAR ENTRENO</button>
+</div>
+
+<!-- CUENTA ATRÁS -->
+<div class="container-center hidden" id="countdownScreen">
+  <div id="countdownNumber" class="fade-text"></div>
+</div>
+
+<!-- TORNIQUETE -->
+<div class="container-center hidden" id="tqScreen">
+  <div class="circle-timer" id="circle">30"</div>
+  <div id="zona" style="font-size:1.5rem; font-weight:bold;"></div>
+</div>
+
+<!-- REANUDAR -->
+<div class="container-center hidden" id="endScreen">
+  <button id="restartBtn" class="btn btn-primary btn-lg">REANUDAR</button>
+</div>
+
+<script>
+const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
+
+const startScreen = document.getElementById('startScreen');
+const countdownScreen = document.getElementById('countdownScreen');
+const countdownNumber = document.getElementById('countdownNumber');
+const tqScreen = document.getElementById('tqScreen');
+const endScreen = document.getElementById('endScreen');
+
+const circle = document.getElementById('circle');
+const zona = document.getElementById('zona');
+
+const zonas = [
+  "Torniquete en pierna derecha",
+  "Torniquete en pierna izquierda",
+  "Torniquete en brazo derecho",
+  "Torniquete en brazo izquierdo",
+  "Has caído al suelo, torniquete en brazo izquierdo",
+  "Has caído al suelo, torniquete en brazo derecho",
+  "Has caído al suelo, torniquete en pierna derecha",
+  "Has caído al suelo, torniquete en pierna izquierda"
+];
+
+/* INICIO */
+startBtn.addEventListener('click', iniciarSecuencia);
+restartBtn.addEventListener('click', iniciarSecuencia);
+
+function iniciarSecuencia(){
+  startScreen.classList.add('hidden');
+  endScreen.classList.add('hidden');
+  tqScreen.classList.add('hidden');
+
+  countdownScreen.classList.remove('hidden');
+  cuentaAtras(3);
+}
+
+/* CUENTA ATRÁS */
+function cuentaAtras(num){
+  if(num === 0){
+    countdownScreen.classList.add('hidden');
+    iniciarTQ();
+    return;
+  }
+
+  countdownNumber.innerText = num;
+  setTimeout(()=>cuentaAtras(num-1),1000);
+}
+
+/* TORNIQUETE */
+function iniciarTQ(){
+  tqScreen.classList.remove('hidden');
+
+  const texto = zonas[Math.floor(Math.random()*zonas.length)];
+  const duracion = Math.floor(Math.random()*11)+15;
+
+  zona.innerText = texto;
+  circle.innerText = duracion + '"';
+
+  actualizarCirculo(circle, duracion, duracion);
+
+  let tiempo = duracion;
+
+  const intervalo = setInterval(()=>{
+    tiempo--;
+    circle.innerText = tiempo + '"';
+    actualizarCirculo(circle, tiempo, duracion);
+
+    if(tiempo <= 0){
+      clearInterval(intervalo);
+      tqScreen.classList.add('hidden');
+      endScreen.classList.remove('hidden'); // 👈 aparece botón
+    }
+  },1000);
+}
+
+/* CÍRCULO */
+function actualizarCirculo(el, restante, total){
+  const percent = (restante/total)*100;
+  el.style.setProperty('--percent', percent + '%');
+}
+</script>
+
+</body>
+</html>
